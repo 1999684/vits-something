@@ -105,4 +105,4 @@ vits/
 ```
 
 ## 致谢
-- 感谢 jaywalnut310/vits 提供的原始实现
+- 感谢 [jaywalnut310/vits](https://github.com/jaywalnut310/vits) 提供的原始实现
