@@ -55,8 +55,9 @@ def synthesize():
         return jsonify({'message': 'Audio ready', 'audio_file': output_wav}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 # 提供静态文件支持，允许前端访问生成的音频文件
-# 将现有的 @app.route('/synthesize_multi_speaker', methods=['POST']) 改为:
+
 @app.route('/synthesize_with_speaker', methods=['POST'])
 def synthesize_with_speaker():
     try:
@@ -65,18 +66,17 @@ def synthesize_with_speaker():
             print("Error: No JSON data in request")
             return jsonify({'error': 'No JSON data provided'}), 400
             
-        print(f"Received data: {data}")  # 打印接收到的数据
+        print(f"Received data: {data}")
         
         text = data.get('text', '')
-        speaker_id = data.get('speaker_id', 0)  # 默认使用说话人ID 0
+        speaker_id = data.get('speaker_id', 0)
         
-        print(f"Text: '{text}', Speaker ID: {speaker_id}")  # 打印提取的参数
+        print(f"Text: '{text}', Speaker ID: {speaker_id}")
         
         if not text:
             print("Error: Empty text parameter")
             return jsonify({'error': 'No text provided'}), 400
-        
-        # 尝试将speaker_id转换为整数
+
         try:
             speaker_id = int(speaker_id)
         except (ValueError, TypeError):
@@ -115,8 +115,6 @@ def synthesize_with_speaker():
         return jsonify({'error': error_msg}), 500
 @app.route('/get_speakers', methods=['GET'])
 def get_speakers():
-    # 这里可以根据模型的实际情况返回可用的说话人列表
-    # VCTK数据集通常有约100个说话人
     speakers = [{"id": i, "name": f"Speaker {i}"} for i in range(100)]
     return jsonify({'speakers': speakers})
 
