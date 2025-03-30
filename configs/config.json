@@ -1,10 +1,10 @@
 {
   "train": {
     "log_interval": 200,
-    "eval_interval": 1000,
+    "eval_interval": 200,
     "seed": 1234,
-    "epochs": 20000,
-    "learning_rate": 5e-5,
+    "epochs": 200000,
+    "learning_rate": 2e-4,
     "betas": [0.8, 0.99],
     "eps": 1e-9,
     "batch_size": 8,
@@ -17,25 +17,24 @@
     "c_kl": 1.0
   },
   "data": {
-    "training_files":"filelists/ljs_audio_text_train_filelist.txt.cleaned",
-    "validation_files":"filelists/ljs_audio_text_val_filelist.txt.cleaned",
-    "text_cleaners":["english_cleaners2"],
+    "training_files":"filelists/AISHELL_train.txt.cleaned",
+    "validation_files":"filelists/AISHELL_val.txt.cleaned",
     "max_wav_value": 32768.0,
-    "sampling_rate": 22050,
+    "sampling_rate": 8000,
     "filter_length": 1024,
     "hop_length": 256,
     "win_length": 1024,
     "n_mel_channels": 80,
     "mel_fmin": 0.0,
     "mel_fmax": null,
-    "add_blank": true,
-    "n_speakers": 0,
-    "cleaned_text": true
+    "add_blank": false,
+    "n_speakers": 174,
+    "text_cleaners": ["chinese_cleaners"] 
   },
   "model": {
     "inter_channels": 192,
     "hidden_channels": 192,
-    "filter_channels": 768,
+    "filter_channels": 512,
     "n_heads": 2,
     "n_layers": 6,
     "kernel_size": 3,
@@ -47,6 +46,7 @@
     "upsample_initial_channel": 512,
     "upsample_kernel_sizes": [16,16,4,4],
     "n_layers_q": 3,
-    "use_spectral_norm": false
+    "use_spectral_norm": false,
+    "gin_channels": 256
   }
 }

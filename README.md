@@ -1,58 +1,108 @@
-# VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech
+# VITS 语音合成系统
 
-### Jaehyeon Kim, Jungil Kong, and Juhee Son
+基于 VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech) 的端到端文本到语音合成系统。本项目实现了单说话人和多说话人的语音合成功能，并提供了 Web API 接口。
 
-In our recent [paper](https://arxiv.org/abs/2106.06103), we propose VITS: Conditional Variational Autoencoder with Adversarial Learning for End-to-End Text-to-Speech.
+## 功能特点
 
-Several recent end-to-end text-to-speech (TTS) models enabling single-stage training and parallel sampling have been proposed, but their sample quality does not match that of two-stage TTS systems. In this work, we present a parallel end-to-end TTS method that generates more natural sounding audio than current two-stage models. Our method adopts variational inference augmented with normalizing flows and an adversarial training process, which improves the expressive power of generative modeling. We also propose a stochastic duration predictor to synthesize speech with diverse rhythms from input text. With the uncertainty modeling over latent variables and the stochastic duration predictor, our method expresses the natural one-to-many relationship in which a text input can be spoken in multiple ways with different pitches and rhythms. A subjective human evaluation (mean opinion score, or MOS) on the LJ Speech, a single speaker dataset, shows that our method outperforms the best publicly available TTS systems and achieves a MOS comparable to ground truth.
+- 端到端的文本到语音合成
+- 支持单说话人和多说话人模式
+- 基于变分推理和对抗学习的高质量语音生成
+- RESTful API 接口，便于集成到其他应用
+- 简洁的 Web 服务，支持在线语音合成
 
-Visit our [demo](https://jaywalnut310.github.io/vits-demo/index.html) for audio samples.
+## 安装步骤
 
-We also provide the [pretrained models](https://drive.google.com/drive/folders/1ksarh-cJf3F5eKJjLVWY0X1j1qsQqiS2?usp=sharing).
+### 环境要求
 
-** Update note: Thanks to [Rishikesh (ऋषिकेश)](https://github.com/jaywalnut310/vits/issues/1), our interactive TTS demo is now available on [Colab Notebook](https://colab.research.google.com/drive/1CO61pZizDj7en71NQG_aqqKdGaA_SaBf?usp=sharing).
+- Python 3.7+
+- PyTorch 1.7+
+- CUDA 支持 (推荐用于训练)
 
-<table style="width:100%">
-  <tr>
-    <th>VITS at training</th>
-    <th>VITS at inference</th>
-  </tr>
-  <tr>
-    <td><img src="resources/fig_1a.png" alt="VITS at training" height="400"></td>
-    <td><img src="resources/fig_1b.png" alt="VITS at inference" height="400"></td>
-  </tr>
-</table>
+### 安装依赖
 
-
-## Pre-requisites
-0. Python >= 3.6
-0. Clone this repository
-0. Install python requirements. Please refer [requirements.txt](requirements.txt)
-    1. You may need to install espeak first: `apt-get install espeak`
-0. Download datasets
-    1. Download and extract the LJ Speech dataset, then rename or create a link to the dataset folder: `ln -s /path/to/LJSpeech-1.1/wavs DUMMY1`
-    1. For mult-speaker setting, download and extract the VCTK dataset, and downsample wav files to 22050 Hz. Then rename or create a link to the dataset folder: `ln -s /path/to/VCTK-Corpus/downsampled_wavs DUMMY2`
-0. Build Monotonic Alignment Search and run preprocessing if you use your own datasets.
-```sh
-# Cython-version Monotonoic Alignment Search
-cd monotonic_align
-python setup.py build_ext --inplace
-
-# Preprocessing (g2p) for your own datasets. Preprocessed phonemes for LJ Speech and VCTK have been already provided.
-# python preprocess.py --text_index 1 --filelists filelists/ljs_audio_text_train_filelist.txt filelists/ljs_audio_text_val_filelist.txt filelists/ljs_audio_text_test_filelist.txt 
-# python preprocess.py --text_index 2 --filelists filelists/vctk_audio_sid_text_train_filelist.txt filelists/vctk_audio_sid_text_val_filelist.txt filelists/vctk_audio_sid_text_test_filelist.txt
+```bash
+pip install -r requirements.txt
 ```
 
+### 下载预训练模型
+下载后将模型文件放置在 pretrained_models 目录下。
 
-## Training Exmaple
-```sh
-# LJ Speech
-python train.py -c configs/ljs_base.json -m ljs_base
-
-# VCTK
-python train_ms.py -c configs/vctk_base.json -m vctk_base
+## 使用方法
+### 启动 Web 服务
+```
+python app.py
 ```
 
+服务将在 http://localhost:5000 启动。
 
-## Inference Example
-See [inference.ipynb](inference.ipynb)
+### API 接口 单说话人语音合成
+- 端点 : /synthesize
+- 方法 : POST
+- 参数 :
+  - text : 要合成的文本
+- 示例 :
+  ```
+  curl -X POST http://localhost:5000/synthesize -H "Content-Type: application/json" -d "{\"text\":\"这是一段测试文本\"}"
+  ```
+### 多说话人语音合成
+- 端点 : /synthesize_with_speaker
+- 方法 : POST
+- 参数 :
+  - text : 要合成的文本
+  - speaker_id : 说话人 ID
+- 示例 :
+  ```bash
+  curl -X POST http://localhost:5000/synthesize_with_speaker -H "Content-Type: application/json" -d "{\"text\":\"这是一段测试文本\",\"speaker_id\":0}"
+  ```
+### 获取说话人列表
+- 端点 : /get_speakers
+- 方法 : GET
+- 示例 :
+  ```bash
+  curl http://localhost:5000/get_speakers
+  ```
+## 命令行推理
+### 单说话人推理
+```bash
+python inference.py --text "要合成的文本" --model_path "pretrained_models/single_speaker_model.pth" --config_path "configs/ljs_base.json" --output_wav "output.wav"
+```
+### 多说话人推理
+```bash
+python inference.py --text "要合成的文本" --model_path "pretrained_models/multi_speaker_model.pth" --config_path "configs/vctk_base.json" --output_wav "output.wav" --speaker_id 0
+```
+## 模型训练
+### 单说话人训练
+```bash
+python train.py -c configs/ljs_base.json -m ljs_model
+```
+
+### 多说话人训练
+```bash
+python train_ms.py -c configs/vctk_base.json -m vctk_model
+```
+
+## 项目结构
+```plaintext
+vits/
+├── app.py                # Web 服务
+├── inference.py          # 推理代码
+├── models.py             # 模型定义
+├── modules.py            # 模型组件
+├── attentions.py         # 注意力机制
+├── commons.py            # 通用工具函数
+├── transforms.py         # 变换函数
+├── train.py              # 单说话人训练脚本
+├── train_ms.py           # 多说话人训练脚本
+├── utils.py              # 工具函数
+├── text/                 # 文本处理
+│   ├── __init__.py       # 文本到序列转换
+│   ├── symbols.py        # 文本符号集
+│   └── cleaners.py       # 文本清洗
+├── configs/              # 配置文件
+│   ├── ljs_base.json     # LJSpeech 配置
+│   └── vctk_base.json    # VCTK 配置
+└── pretrained_models/    # 预训练模型目录
+```
+
+## 致谢
+- 感谢 jaywalnut310/vits 提供的原始实现

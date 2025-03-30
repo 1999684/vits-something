@@ -12,10 +12,12 @@ hyperparameter. Some cleaners are English-specific. You'll typically want to use
      the symbols in symbols.py to match your data).
 '''
 
+import os
 import re
 from unidecode import unidecode
 from phonemizer import phonemize
-
+from phonemizer.backend import EspeakBackend
+from pypinyin import lazy_pinyin, Style
 
 # Regular expression matching whitespace:
 _whitespace_re = re.compile(r'\s+')
@@ -80,21 +82,34 @@ def transliteration_cleaners(text):
   return text
 
 
+import subprocess
+
 def english_cleaners(text):
-  '''Pipeline for English text, including abbreviation expansion.'''
-  text = convert_to_ascii(text)
-  text = lowercase(text)
-  text = expand_abbreviations(text)
-  phonemes = phonemize(text, language='en-us', backend='espeak', strip=True)
-  phonemes = collapse_whitespace(phonemes)
-  return phonemes
+    '''Pipeline for English text, including abbreviation expansion.'''
+    text = convert_to_ascii(text)
+    text = lowercase(text)
+    text = expand_abbreviations(text)
+    
+    # 使用 subprocess 调用 espeak
+    espeak_path = r"D:\000myself\eSpeak\command_line\espeak.exe"  # 根据你的 espeak 安装路径修改
+    result = subprocess.run([espeak_path, '-q', '--ipa', '-v', 'en-us', text], stdout=subprocess.PIPE)
+    phonemes = result.stdout.decode('utf-8').strip()
+    
+    phonemes = collapse_whitespace(phonemes)
+    return phonemes
 
 
 def english_cleaners2(text):
-  '''Pipeline for English text, including abbreviation expansion. + punctuation + stress'''
-  text = convert_to_ascii(text)
-  text = lowercase(text)
-  text = expand_abbreviations(text)
-  phonemes = phonemize(text, language='en-us', backend='espeak', strip=True, preserve_punctuation=True, with_stress=True)
-  phonemes = collapse_whitespace(phonemes)
-  return phonemes
+    '''Pipeline for English text, including abbreviation expansion. + punctuation + stress'''
+    text = convert_to_ascii(text)
+    text = lowercase(text)
+    text = expand_abbreviations(text)
+    
+    # 使用 subprocess 调用 espeak
+    espeak_path = r"D:\000myself\eSpeak\command_line\espeak.exe"  # 根据你的 espeak 安装路径修改
+    result = subprocess.run([espeak_path, '-q', '--ipa', '-v', 'en-us', text], stdout=subprocess.PIPE)
+    phonemes = result.stdout.decode('utf-8').strip()
+    
+    phonemes = collapse_whitespace(phonemes)
+    return phonemes
+
