@@ -1,6 +1,6 @@
 # VITS 语音合成系统
 
-> 本项目属于外行人编辑，且为上传中文相关内容和前端代码。
+> 本项目属于外行人编辑，且未上传中文相关内容和前端代码。
 
 基于 VITS (Variational Inference with adversarial learning for end-to-end Text-to-Speech) 的端到端文本到语音合成系统。本项目实现了单说话人和多说话人的语音合成功能，并提供了 Web API 接口。
 
